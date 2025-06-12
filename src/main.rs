@@ -7,8 +7,11 @@ use std::io;
 #[inline(always)]
 fn parse(x: &mut String) {
     /* i don't love the x.chars() call each time */
-    while matches!(x.chars().last(), Some('\n')) {
+    let xarr: Vec<char> = x.chars().collect();
+    let mut i: usize = xarr.len() - 1;
+    while matches!(xarr[i], '\n') {
         x.pop();
+        i -= 1;
     }
 }
 

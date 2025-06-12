@@ -22,7 +22,16 @@ pub fn get_trgm(s: &String) -> Vec<String> {
 
 #[inline(always)]
 fn hash(c: &String) -> u32 {
-    /* we know it's a trigram so there will be 3 chars always */
+    /* 
+    we know it's a trigram so there will be 3 chars always
+    Further, we know that the key will be chunked into
+    4 8bit segments,
+    | 0 | b[0] | b[1] | b[2] |
+    We can use 4 bits to represent
+    hits:
+    i.e. 0111 -> strings match.
+    How to use this info to optimize comparisons?
+    */
     let b: &[u8] = c.as_bytes();
     ((b[0] as u32) << 16) | ((b[1] as u32) << 8) | (b[2] as u32)
 }

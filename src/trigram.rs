@@ -55,3 +55,4 @@ pub fn similarity(x: &Vec<String>, y: &Vec<String>) -> f32 {
 
     u as f32 / (v as f32)
 }
+

@@ -1,6 +1,8 @@
 mod trigram;
+mod reader;
 
 use trigram::{get_trgm, similarity};
+use reader::file_to_words;
 
 use std::io;
 
@@ -16,24 +18,37 @@ fn parse(x: &mut String) {
 }
 
 fn main() {
-    let mut fixed_wrd: String = String::new();
+    const THRESHOLD: f32 = 0.3;
+    let vocab: Vec<String> = file_to_words("./src/data/words.txt");
 
-    println!("Enter fixed word: ");
-    io::stdin().read_line(&mut fixed_wrd).expect("error xd");
-
-    parse(&mut fixed_wrd);
-
-    let fixed_wrd_trgm: Vec<String> = get_trgm(&fixed_wrd);
+    let vocab_trgm: Vec<Vec<String>> = vocab.iter().map(|x| get_trgm(x)).collect();
 
     loop {
-        let mut x: String = String::new();
-        io::stdin().read_line(&mut x).expect("error bruh");
-        parse(&mut x);
+        println!("Enter word: ");
+        let mut word: String = String::new();
+        io::stdin().read_line(&mut word).expect("error bruh");
+        parse(&mut word);
 
-        if x == "stop" {
+        if word == "stop" {
             break;
         }
 
-        println!("{:?}", similarity(&get_trgm(&x), &fixed_wrd_trgm));
+        /*
+        naive implementation, we can do a lot to improve runtime.
+        */
+        let mut scores: Vec<(usize, f32)> = vocab_trgm.iter().enumerate()
+                                    .map(|(i, x)| 
+                                        (i, similarity(&get_trgm(&word), x))
+                                    )
+                                    .filter(|(_, v)| *v > THRESHOLD)
+                                    .collect();
+
+        scores.sort_by(|a, b| (-a.1).partial_cmp(&-b.1).unwrap());
+        println!("SIMILAR (threshold := {:})", THRESHOLD);
+        for (i, v) in scores.iter() {
+            println!("{:}: {:}", vocab[*i], v);
+            
+        }
     }
+    
 }

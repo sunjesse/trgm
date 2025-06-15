@@ -1,21 +1,12 @@
 mod trigram;
 mod reader;
+mod common;
 
 use trigram::{get_trgm, similarity};
 use reader::file_to_words;
+use common::{parse};
 
 use std::io;
-
-#[inline(always)]
-fn parse(x: &mut String) {
-    let xarr: Vec<char> = x.chars().collect();
-    let mut i: usize = xarr.len() - 1;
-    while matches!(xarr[i], '\n') {
-        x.pop();
-        if i == 0 { break; }
-        i -= 1;
-    }
-}
 
 fn main() {
     const THRESHOLD: f32 = 0.3;

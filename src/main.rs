@@ -2,6 +2,7 @@ mod trigram;
 mod reader;
 mod common;
 
+use std::collections::HashSet;
 use trigram::{get_trgm, similarity};
 use reader::file_to_words;
 use common::{parse};
@@ -12,7 +13,7 @@ fn main() {
     const THRESHOLD: f32 = 0.3;
     let vocab: Vec<String> = file_to_words("./src/data/words.txt");
 
-    let vocab_trgm: Vec<Vec<String>> = vocab.iter().map(|x| get_trgm(x)).collect();
+    let vocab_trgm: Vec<HashSet<u32>> = vocab.iter().map(|x| get_trgm(x)).collect();
 
     loop {
         println!("Enter word: ");

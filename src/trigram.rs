@@ -32,7 +32,7 @@ fn hash(c: String) -> u32 {
     Ex:
         'abc' => [' ab', 'abc', 'bc ']
         b[0] = ' ', b[1] = 'a', b[2] = 'b', b[3] = 'c', b[4] = ' '
-        b32, b97, b98, b99, b32
+        32u8, 97u8, 98u8, 99u8, 32u8
     */
     let b: &[u8] = c.as_bytes();
     ((b[0] as u32) << 16) | ((b[1] as u32) << 8) | (b[2] as u32)

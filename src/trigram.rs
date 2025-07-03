@@ -9,17 +9,22 @@ It pads the head with 2 empty spaces, and tail with
 #[derive(Debug)]
 pub struct Trigrams {
     cache: HashMap<String, HashSet<u32>>,
+    vocab: Vec<String>,
+    threshold: f32,
 }
 
 impl Trigrams {
-    pub fn new() -> Self {
+    pub fn new(threshold: f32) -> Self {
         Trigrams {
             cache: HashMap::new(),
+            vocab: Vec::new(),
+            threshold: threshold,
         }
     }
 
     pub fn add_vocab(&mut self, vocab: Vec<String>) {
         let _: Vec<_> = vocab.iter().map(|x| self.get_trgm(x)).collect();
+        self.vocab = vocab;
     }
 
     pub fn get_trgm(&mut self, s: &String) -> HashSet<u32> {
@@ -55,40 +60,41 @@ impl Trigrams {
         ans
     }
 
+    pub fn get_scores(&mut self, word: &String) -> Vec<(usize, f32)> {
+        let word_trgm: HashSet<u32> = self.get_trgm(word);
+
+        let keys: Vec<&String> = self.vocab.iter().collect();
+
+        let mut scores: Vec<(usize, f32)>= keys.iter()
+            .enumerate()
+            .map(|(i, k)| (i, self.similarity(&word_trgm, self.cache.get(*k).unwrap()))) // k is ref to ref
+            .filter(|(_, score)| *score > self.threshold)
+            .collect(); 
+        
+        scores.sort_by(|a, b| (-a.1).partial_cmp(&-b.1).unwrap());
+
+        for (i, v) in scores.iter() {
+            println!("{:}: {:}", self.vocab[*i], v);
+        }
+
+        scores
+    }
+
     pub fn print_cache(&self) {
         /* helper, get rid of soon */
         println!("cache is {:?}", self.cache);
     }
-}
 
-pub fn similarity(x: &HashSet<u32>, y: &HashSet<u32>) -> f32 {
-    let mut u: usize = 0;
-    let mut v: usize = x.len();
-    for c in y.iter() {
-        if let Some(_) = x.get(c) {
-            u += 1;
-        } else {
-            v += 1;
+    pub fn similarity(&self, x: &HashSet<u32>, y: &HashSet<u32>) -> f32 {
+        let mut u: usize = 0;
+        let mut v: usize = x.len();
+        for c in y.iter() {
+            if let Some(_) = x.get(c) {
+                u += 1;
+            } else {
+                v += 1;
+            }
         }
+        u as f32 / (v as f32)
     }
-    u as f32 / (v as f32)
-}
-
-#[inline(always)]
-#[allow(dead_code)]
-fn hash(c: String) -> u32 {
-    /*
-    we know it's a trigram so there will be 3 chars always
-    Further, we know that the key will be chunked into
-    4 8bit segments. We have a sliding window of size 3
-    to make up a bit representation of the form
-    | 0 | b_1 | b_2 | b_3 |
-
-    Ex:
-        'abc' => [' ab', 'abc', 'bc ']
-        b[0] = ' ', b[1] = 'a', b[2] = 'b', b[3] = 'c', b[4] = ' '
-        32u8, 97u8, 98u8, 99u8, 32u8
-    */
-    let b: &[u8] = c.as_bytes();
-    ((b[0] as u32) << 16) | ((b[1] as u32) << 8) | (b[2] as u32)
 }

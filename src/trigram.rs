@@ -29,7 +29,7 @@ impl Trigrams {
 
     pub fn get_trgm(&mut self, s: &String) -> HashSet<u32> {
         if let Some(val) = self.cache.get(s) {
-            return val.clone();
+            return val.clone(); // bad
         }
 
         let mut ans: HashSet<u32> = HashSet::with_capacity((s.len() + 4) - 2);
@@ -56,7 +56,7 @@ impl Trigrams {
             }
             ans.insert(v);
         }
-        self.cache.insert(s.clone(), ans.clone());
+        self.cache.insert(s.clone(), ans.clone()); // bad
         ans
     }
 

@@ -65,12 +65,13 @@ impl Trigrams {
 
         let keys: Vec<&String> = self.vocab.iter().collect();
 
-        let mut scores: Vec<(usize, f32)>= keys.iter()
+        let mut scores: Vec<(usize, f32)> = keys
+            .iter()
             .enumerate()
             .map(|(i, k)| (i, self.similarity(&word_trgm, self.cache.get(*k).unwrap()))) // k is ref to ref
             .filter(|(_, score)| *score > self.threshold)
-            .collect(); 
-        
+            .collect();
+
         scores.sort_by(|a, b| (-a.1).partial_cmp(&-b.1).unwrap());
 
         for (i, v) in scores.iter() {
